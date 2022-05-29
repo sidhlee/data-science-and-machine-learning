@@ -1,3 +1,14 @@
 {
-  "workbench.colorTheme": "Darcula Pycharm with Dark GUI"
+  "workbench.colorTheme": "Darcula Pycharm with Dark GUI",
+  "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "*test.py"],
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": ["courses"],
+  "python.linting.pylintEnabled": false,
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Args": [
+    "--ignore=E203,E266,E501,W503",
+    "--max-line-length=120"
+  ]
 }
