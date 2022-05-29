@@ -25,11 +25,18 @@ class SmaBackTester:
     def __init__(
         self, ticker: str, sma_s: int, sma_l: int, start: str, end: str, csv: str = None
     ):
+        """
+        Parameters
+        ----------
+        csv: str
+            If specified, reads the stock data from the given csv file path.
+        """
         self._ticker = ticker
         self._sma_s = sma_s
         self._sma_l = sma_l
         self._start = start
         self._end = end
+        self._optimization_results = None
 
         self._load_data(csv)
         self._results = self._get_results()
@@ -43,6 +50,11 @@ class SmaBackTester:
         self._data = data
 
     def _get_data(self, csv=None):
+        """
+        Fetches stock data using yfinance.download().
+        csv: str
+            Path to the csv file. When specified, gets the data from the csv file
+        """
         df: DataFrame = None
         if csv is not None:
             df = pd.read_csv(csv, parse_dates=["Date"], index_col="Date")[self._ticker]
@@ -59,6 +71,17 @@ class SmaBackTester:
         return df
 
     def _get_results(self, sma_s=None, sma_l=None):
+        """Returns a copy of the stock data where strategy result columns are added.
+
+        Returned frame contains:
+            - returns - daily log return of the price
+            - sma_s - window of the short moving average
+            - sma_l - window of the long moving average
+            - position - 1 where sms_s > sma_l, else -1
+            - strategy - today's return * yesterday's position
+            - creturns - current return of the asset cumulated up to the given date. (buy-and-hold)
+            - cstrategy - current return of the asset with the strategy. (SMA crossover)
+        """
         if sma_s is None:
             sma_s = self._sma_s
         if sma_l is None:
@@ -86,6 +109,10 @@ class SmaBackTester:
     def results(self):
         return self._results
 
+    @property
+    def optimization_results(self):
+        return self._optimization_results
+
     def get_perfs(self):
         """Returns (absolute return, out-performance against buy-and-hold)"""
         abs_perf_strategy = self._results.cstrategy[-1]
@@ -100,6 +127,7 @@ class SmaBackTester:
         plt.show()
 
     def set_params(self, sma_s: int = None, sma_l: int = None):
+        """Updates the window for the short and long SMA. Automatically updates the strategy results frame."""
         if sma_s is not None:
             self._sma_s = sma_s
         if sma_l is not None:
@@ -109,6 +137,10 @@ class SmaBackTester:
     def optimize_params(
         self, range_s_args: Tuple[int, int, int], range_l_args: Tuple[int, int, int]
     ):
+        """
+        Find the best performing parameters for the strategy.
+        Populates `optimization_results` attributes.
+        """
         range_s = range(*range_s_args)
         range_l = range(*range_l_args)
         pairs = list(product(range_s, range_l))
@@ -118,6 +150,9 @@ class SmaBackTester:
             self._results = self._get_results(s, l)
             (abs_perf, _) = self.get_perfs()
             results.append(abs_perf)
+
+        self._optimization_results = DataFrame(data=pairs, columns=["sma_s", "sma_l"])
+        self._optimization_results["abs_perf"] = results
 
         max_perf = np.max(results)
         max_index = np.argmax(results)
