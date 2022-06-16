@@ -51,8 +51,9 @@ class MeanReversionBacktesterTestCase(TestCase):
         self.assertAlmostEqual(row["net_cstrategy"], 0.988911, 5)
 
     def test_get_perfs(self):
-        self.assertAlmostEqual(self.tester.get_perfs(), (1.069792, 0.132076))
-        self.assertEqual(len(self.tester._results), 2040)
+        (perf, outperf) = self.tester.get_perfs()
+        self.assertAlmostEqual(perf, 1.0864666877031217)
+        self.assertAlmostEqual(outperf, 0.14921739564588477)
 
     def test_optimize_params(self):
         (optimized_params, after_cost_return) = self.tester.optimize_params()

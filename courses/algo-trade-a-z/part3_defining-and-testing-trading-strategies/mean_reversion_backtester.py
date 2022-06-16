@@ -105,7 +105,9 @@ class MeanReversionBacktester:
         return df
 
     def get_perfs(self):
-        pass
+        perf = self.results["net_cstrategy"].iloc[-1]
+        outperf = perf - self.results["creturns"].iloc[-1]
+        return (perf, outperf)
 
     def optimize_params(
         self, sma_range: Tuple[int, int, int], sigma_range: Tuple[int, int, int]
