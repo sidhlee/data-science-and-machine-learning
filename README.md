@@ -14,3 +14,11 @@ Then, run the following command to export packages installed via conda and pip.
 ```bash
 conda env export > conda_environment_export.yml
 ```
+
+## Jupyter notebook
+
+### Troubleshooting
+
+**"File does not exist" from `read_csv`**
+
+- Try re-connecting the notebook by reloading the window.

@@ -15,10 +15,7 @@ class MeanReversionBacktesterTestCase(TestCase):
             "MeanReversionBacktester(ticker = EURUSD, sma = 30, sigma = 2, start = 2018-01-01, end = 2019-12-31)",
         )
 
-    def test_get_perfs(self):
-        self.assertAlmostEqual(self.tester.get_perfs(), (1.069792, 0.132076))
-        self.assertEqual(len(self.tester._results), 2040)
-
+    def test_results(self):
         expected_columns = [
             "price",
             "returns",
@@ -28,26 +25,34 @@ class MeanReversionBacktesterTestCase(TestCase):
             "distance",
             "position",
             "strategy",
-            "trades",
             "creturns",
             "cstrategy",
+            "trades",
+            "net_strategy",
+            "net_cstrategy",
         ]
 
         # get_perfs should populate the results dataframe
-        self.assertEqual(self.tester.results.columns, expected_columns)
+        self.assertListEqual(list(self.tester.results.columns), expected_columns)
 
-        row = self.tester.results.loc["2018-01-12 04:00"]
-        self.assertAlmostEqual(row["price"], 1.212530)
-        self.assertAlmostEqual(row["returns"], 0.006093)
-        self.assertAlmostEqual(row["sma"], 1.200748)
-        self.assertAlmostEqual(row["lower"], 1.190374)
-        self.assertAlmostEqual(row["upper"], 1.211122)
-        self.assertAlmostEqual(row["distance"], 0.011782)
-        self.assertAlmostEqual(row["position"], -1)
-        self.assertAlmostEqual(row["strategy"], -0.000070)
-        self.assertAlmostEqual(row["trades"], 1.0)
-        self.assertAlmostEqual(row["creturns"], 1.014865)
-        self.assertAlmostEqual(row["cstrategy"], 0.999930)
+        row = self.tester.results.loc["2018-02-12 04:00"]
+        self.assertAlmostEqual(row["price"], 1.226390, 5)
+        self.assertAlmostEqual(row["returns"], -0.001882, 5)
+        self.assertAlmostEqual(row["sma"], 1.236001, 5)
+        self.assertAlmostEqual(row["lower"], 1.217764, 5)
+        self.assertAlmostEqual(row["upper"], 1.254237, 5)
+        self.assertAlmostEqual(row["position"], 1)
+        self.assertAlmostEqual(row["distance"], -0.009610, 5)
+        self.assertAlmostEqual(row["strategy"], -0.001882, 5)
+        self.assertAlmostEqual(row["creturns"], 1.025954, 5)
+        self.assertAlmostEqual(row["cstrategy"], 0.989118, 5)
+        self.assertAlmostEqual(row["trades"], 0.00000, 5)
+        self.assertAlmostEqual(row["net_strategy"], -0.001882, 5)
+        self.assertAlmostEqual(row["net_cstrategy"], 0.988911, 5)
+
+    def test_get_perfs(self):
+        self.assertAlmostEqual(self.tester.get_perfs(), (1.069792, 0.132076))
+        self.assertEqual(len(self.tester._results), 2040)
 
     def test_optimize_params(self):
         (optimized_params, after_cost_return) = self.tester.optimize_params()
