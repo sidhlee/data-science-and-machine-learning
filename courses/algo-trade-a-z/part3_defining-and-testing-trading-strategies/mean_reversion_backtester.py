@@ -1,7 +1,8 @@
+import os
 import pandas as pd
 import numpy as np
-from typing import Tuple
-import os
+from typing import List, Tuple
+from itertools import product
 
 
 class MeanReversionBacktester:
@@ -20,7 +21,7 @@ class MeanReversionBacktester:
 
         self._data = None
         self._results: pd.DataFrame = None
-        self._optimization_trials: pd.DataFrame = None
+        self._optimization_results: pd.DataFrame = None
 
         self._load_data()
         self._results = self._get_results()
@@ -33,8 +34,8 @@ class MeanReversionBacktester:
         return self._results
 
     @property
-    def optimization_trials(self):
-        return self._optimization_trials
+    def optimization_results(self):
+        return self._optimization_results
 
     def _load_data(self):
         path = os.path.join(
@@ -69,9 +70,12 @@ class MeanReversionBacktester:
 
         df["returns"] = df["price"].div(df["price"].shift(1)).apply(np.log)
         df["sma"] = df["price"].rolling(self._sma).mean()
+        # having dropna here gives incorrect results because
+        # we're rolling it again for the delta and the first 29 line would be NaN again
+        # df.dropna(inplace=True)
+        delta = df["price"].rolling(self._sma).std() * self._sigma
         df.dropna(inplace=True)
 
-        delta = df["price"].rolling(self._sma).std() * self._sigma
         df["lower"] = df["sma"].sub(delta)
         df["upper"] = df["sma"].add(delta)
 
@@ -85,11 +89,14 @@ class MeanReversionBacktester:
         )
         # forward-fill until the price hits the upper|lower bound
         df["position"].ffill(inplace=True)
-        # hold for any missing position
+        # we want to dropna before filling any values because that'll skew the result
+        # eg. more holding will lower the cstrategy
         df["position"].fillna(0, inplace=True)
 
         df["strategy"] = df["returns"] * df["position"].shift(1)
 
+        # For the same reason above, df needs to be removed of the empty rows
+        # before calculating cumulative values.
         df["creturns"] = df["returns"].cumsum().apply(np.exp)
         df["cstrategy"] = df["strategy"].cumsum().apply(np.exp)
 
@@ -105,11 +112,50 @@ class MeanReversionBacktester:
         return df
 
     def get_perfs(self):
+        """
+        returns (perf, outperf)
+        perf - final return on strategy after the trading cost
+        outperf - perf - benchmark(buy & hold)
+        """
         perf = self.results["net_cstrategy"].iloc[-1]
         outperf = perf - self.results["creturns"].iloc[-1]
         return (perf, outperf)
 
-    def optimize_params(
-        self, sma_range: Tuple[int, int, int], sigma_range: Tuple[int, int, int]
-    ):
-        pass
+    def set_params(self, sma: int, sigma: int):
+        self._sma = sma
+        self._sigma = sigma
+        self._results = self._get_results()
+
+    def optimize_params(self, sma_range: range, sigma_range: range):
+        """
+        Find the best combination of sma window and sigma for Bollinger band.
+        1. Sets the sma and sigma of the instance with the above
+        2. Updates the results df
+        3. Populates `optimization_results` df
+
+        Returns: ((sma, sigma), best_perf)
+        """
+        products = list(product(sma_range, sigma_range))
+        perfs = []
+        for (sma, sigma) in products:
+            self.set_params(sma, sigma)
+            (perf, _) = self.get_perfs()
+            perfs.append(perf)
+        best_perf = max(perfs)
+        best_index = np.argmax(perfs)
+        # if you hadn't converted the products into list, it would've been exhausted after iterating through
+        (sma, sigma) = products[best_index]
+
+        self.set_params(sma, sigma)
+        self._optimization_results = self._get_optimization_results(products, perfs)
+
+        return ((sma, sigma), best_perf)
+
+    def _get_optimization_results(self, products: Tuple[int, int], perfs: List[float]):
+        return pd.DataFrame(
+            {
+                "sma": (sma for (sma, _) in products),
+                "sigma": (sigma for (_, sigma) in products),
+                "perf": perfs,
+            }
+        )
