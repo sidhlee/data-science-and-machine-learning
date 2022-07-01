@@ -432,6 +432,7 @@ dependencies:
   - zope.interface=5.4.0=py39h7f8727e_0
   - zstd=1.4.9=haebb681_0
   - pip:
+    - fredapi==0.5.0
     - multitasking==0.0.10
     - python-dotenv==0.20.0
     - yfinance==0.1.70
