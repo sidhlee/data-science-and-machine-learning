@@ -17,6 +17,10 @@ conda env export > conda_environment_export.yml
 
 ## Jupyter notebook
 
+### Setting up
+
+- [Configuring Jupyter Notebook in Windows Subsystem Linux (WSL2)](https://towardsdatascience.com/configuring-jupyter-notebook-in-windows-subsystem-linux-wsl2-c757893e9d69)
+
 ### Troubleshooting
 
 **"File does not exist" from `read_csv`**
