@@ -1,0 +1,16 @@
+name: ds-and-ml
+
+channels:
+  - conda-forge
+  - anaconda
+
+dependencies:
+  - python=3.9
+  - pandas
+  - numpy
+  - matplotlib
+  - seaborn
+  - pytz
+  - fredapi
+  - pip:
+    - -r requirements.txt
