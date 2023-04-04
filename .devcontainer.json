@@ -1,0 +1,5 @@
+{
+  "image": "ds-and-ml",
+  "workspaceMount": "type=bind,source=${localWorkspaceFolder}/src,target=/ds-and-ml",
+	"workspaceFolder": "/ds-and-ml"
+}
