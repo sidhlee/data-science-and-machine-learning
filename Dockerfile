@@ -5,6 +5,7 @@ WORKDIR $APP_HOME
 
 # Copy only the file needed for the conda environment
 COPY environment.yaml ./
+COPY requirements.txt ./
 
 # Install the conda environment
 RUN conda update --name base conda &&\
