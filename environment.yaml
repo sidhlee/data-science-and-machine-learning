@@ -13,4 +13,5 @@ dependencies:
   - pytz
   - fredapi
   - pip:
-    - -r requirements.txt
+    - python-dotenv
+    - yfinance
