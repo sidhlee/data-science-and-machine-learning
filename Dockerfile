@@ -1,4 +1,4 @@
-FROM  continuumio/miniconda3
+FROM jupyter/scipy-notebook
 
 ENV APP_HOME /ds-and-ml
 WORKDIR $APP_HOME
