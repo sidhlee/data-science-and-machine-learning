@@ -11,7 +11,7 @@ dependencies:
   - matplotlib
   - seaborn
   - pytz
-  - fredapi
+  - python-dotenv
+  - yfinance
   - pip:
-    - python-dotenv
-    - yfinance
+    - fredapi==0.5.*

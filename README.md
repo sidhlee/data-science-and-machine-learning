@@ -26,3 +26,19 @@ conda env export > conda_environment_export.yml
 **"File does not exist" from `read_csv`**
 
 - Try re-connecting the notebook by reloading the window.
+
+## Conda vs Pip packages
+
+If a package is available from both conda and pip, it's generally recommended to install it with conda, but pip can be used if the package is not available through conda or if you need a specific version of the package that's only available through pip.
+
+You can check if a package is available as conda packages with `conda search`.
+
+```bash
+conda search yfinance
+```
+
+## Selecting the "right" environment
+
+For python files, select `Python: Select Interpreter` from the command pallett and select `/opt/conda/envs/ds-and-ml/bin/python`.
+
+For Jupyter notebook files (`.ipynb`), `Notebook: Select Notebook Kernel` > `Python Environments` and select the same environment as the above.

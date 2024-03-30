@@ -3,13 +3,16 @@ FROM jupyter/scipy-notebook
 ENV APP_HOME /ds-and-ml
 WORKDIR $APP_HOME
 
+# Define the environment variable
+ARG UPDATE_CONDA=false
+
 # Copy only the file needed for the conda environment
 COPY environment.yaml ./
-COPY requirements.txt ./
 
 # Install the conda environment
-RUN conda update --name base conda &&\
+RUN if [ "$UPDATE_CONDA" = "true" ]; then conda update --name base conda; fi &&\
     conda env create --file environment.yaml &&\
+    # activate the conda env when bash shell is started
     echo "source activate $(head -1 environment.yaml | cut -d' ' -f2)" > ~/.bashrc &&\
     conda clean --all -f -y
 
