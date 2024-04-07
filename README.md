@@ -42,3 +42,6 @@ conda search yfinance
 For python files, select `Python: Select Interpreter` from the command pallett and select `/opt/conda/envs/ds-and-ml/bin/python`.
 
 For Jupyter notebook files (`.ipynb`), `Notebook: Select Notebook Kernel` > `Python Environments` and select the same environment as the above.
+
+## To update conda environment
+You can update the conda environment (eg. add a new package) by updating `environment.yaml` and run `conda env update --file environment.yaml`

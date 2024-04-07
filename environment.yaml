@@ -13,5 +13,6 @@ dependencies:
   - pytz
   - python-dotenv
   - yfinance
+  - tensorflow
   - pip:
     - fredapi==0.5.*
