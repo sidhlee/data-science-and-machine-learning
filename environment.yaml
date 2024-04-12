@@ -14,5 +14,7 @@ dependencies:
   - python-dotenv
   - yfinance
   - tensorflow
+  - scikit-learn
   - pip:
     - fredapi==0.5.*
+    - six
